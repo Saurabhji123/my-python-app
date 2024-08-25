@@ -9,7 +9,7 @@ import vonage
 import os
 import time
 
-# Environment Variables
+# Environment Variables of this file
 VONAGE_API_KEY = os.environ.get('71257b49')
 VONAGE_API_SECRET = os.environ.get('PNu4Uu4CLxHP8Hgj')
 TO_PHONE_NUMBER = '919335210176'  # Recipient phone number (where you receive SMS notifications)
