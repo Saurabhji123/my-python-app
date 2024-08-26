@@ -1,3 +1,4 @@
+from flask import Flask, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -8,11 +9,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 import vonage
 import os
 import time
+import threading
+
+app = Flask(__name__)
 
 # Set port for deployment
 port = int(os.environ.get('PORT', 5000))
 
-# Environment Variables of this file
+# Environment Variables
 VONAGE_API_KEY = os.environ.get('71257b49')
 VONAGE_API_SECRET = os.environ.get('PNu4Uu4CLxHP8Hgj')
 TO_PHONE_NUMBER = '919335210176'  # Recipient phone number (where you receive SMS notifications)
@@ -76,16 +80,32 @@ def send_sms_notification(phone_number):
     else:
         print(f"Message failed with error: {responseData['messages'][0]['error-text']}")
 
-def main():
-    phone_number = TARGET_PHONE_NUMBER  # Targeted person's phone number
-
+def monitoring_task():
     login_to_whatsapp()
-    
     while True:
-        find_contact(phone_number)  # Targeted person's phone number
+        find_contact(TARGET_PHONE_NUMBER)
         if check_online_status():
-            send_sms_notification(phone_number)  # Targeted person's phone number
+            send_sms_notification(TARGET_PHONE_NUMBER)
         time.sleep(60)  # Check every minute
 
+@app.route('/start-monitoring', methods=['POST'])
+def start_monitoring():
+    # Start the monitoring in a separate thread
+    thread = threading.Thread(target=monitoring_task)
+    thread.start()
+    return jsonify({"status": "success", "message": "Monitoring started"}), 200
+
+@app.route('/check-status', methods=['GET'])
+def check_status():
+    try:
+        login_to_whatsapp()
+        find_contact(TARGET_PHONE_NUMBER)
+        if check_online_status():
+            send_sms_notification(TARGET_PHONE_NUMBER)
+            return jsonify({"status": "success", "message": "Notification sent"}), 200
+        return jsonify({"status": "failure", "message": "Target is not online"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 if __name__ == "__main__":
-    main()
+    app.run(host='0.0.0.0', port=port)
