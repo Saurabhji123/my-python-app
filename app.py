@@ -9,6 +9,9 @@ import vonage
 import os
 import time
 
+# Set port for deployment
+port = int(os.environ.get('PORT', 5000))
+
 # Environment Variables of this file
 VONAGE_API_KEY = os.environ.get('71257b49')
 VONAGE_API_SECRET = os.environ.get('PNu4Uu4CLxHP8Hgj')
