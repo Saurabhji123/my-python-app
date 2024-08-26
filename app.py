@@ -23,7 +23,7 @@ TO_PHONE_NUMBER = '919335210176'  # Recipient phone number (where you receive SM
 TARGET_PHONE_NUMBER = '9451150496'  # Targeted person's phone number
 
 # Initialize Vonage Client
-client = vonage.Client(key=VONAGE_API_KEY, secret=VONAGE_API_SECRET)
+client = vonage.Client(key=os.getenv('VONAGE_API_KEY'), secret=os.getenv('VONAGE_API_SECRET'))
 sms = vonage.Sms(client)
 
 # Setup Chrome options for headless mode
